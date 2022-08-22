@@ -93,6 +93,7 @@ class OracleStack(Stack):  # later move code into constructs.py
 
         # dependencies: secret, environment variable, permissions, Eventbridge rule target
         self.secret.grant_read(self.lambda_fn.role)
+        self.lambda_fn.add_environment(key="SECRET_NAME", value=self.secret.secret_name)
         self.lambda_fn.add_environment(key="DYNAMODB_TABLE", value=self.dynamodb_table.table_name)
         self.dynamodb_table.grant_read_write_data(self.lambda_fn)
         self.eventbridge_minute_scheduled_event.add_target(
