@@ -3,21 +3,31 @@ from aws_cdk import (
     BundlingOptions,
     Duration,
     RemovalPolicy,
+    SecretValue,
     Size,
     Stack,
     aws_dynamodb as dynamodb,
     aws_events as events,
     aws_events_targets as events_targets,
     aws_lambda as _lambda,
+    aws_secretsmanager as secretsmanager,
     aws_stepfunctions as sfn,
     aws_stepfunctions_tasks as sfn_tasks,
 )
 
 
-
 class OracleStack(Stack):  # later move code into constructs.py
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
+
+        # Secrets Manager
+        self.secret = secretsmanager.Secret(
+            self,
+            "MyFavoriteSecret",
+            # in real life, you would not put the secret in plaintext in CDK
+            secret_object_value={"my_secret": SecretValue.unsafe_plain_text("SUPER_SECRET_VALUE")},
+        )
+
         # DynamoDB table
         self.dynamodb_table = dynamodb.Table(self, "RandomIntegers",
             partition_key=dynamodb.Attribute(name="datetime_utc", type=dynamodb.AttributeType.STRING),
@@ -81,7 +91,8 @@ class OracleStack(Stack):  # later move code into constructs.py
             schedule=events.Schedule.rate(Duration.minutes(1)),
         )
 
-        # dependencies: environment variable, permissions, Eventbridge rule target
+        # dependencies: secret, environment variable, permissions, Eventbridge rule target
+        self.secret.grant_read(self.lambda_fn.role)
         self.lambda_fn.add_environment(key="DYNAMODB_TABLE", value=self.dynamodb_table.table_name)
         self.dynamodb_table.grant_read_write_data(self.lambda_fn)
         self.eventbridge_minute_scheduled_event.add_target(
