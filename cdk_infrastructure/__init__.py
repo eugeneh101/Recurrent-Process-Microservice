@@ -29,17 +29,8 @@ class OracleStack(Stack):  # later move code into constructs.py
             runtime=_lambda.Runtime.PYTHON_3_9,
             code=_lambda.Code.from_asset(
                 path="source/update_database_lambda",
-                # exclude=[".venv/*"],  # exclude virtualenv
-
-                bundling=BundlingOptions(
-                        image=_lambda.Runtime.PYTHON_3_9.bundling_image,
-                        command=["bash", "-c", "pip install -r requirements.txt -t /asset-output && cp -au . /asset-output"
-                        ],
-#                        security_opt="no-new-privileges:true",  # https://docs.docker.com/engine/reference/commandline/run/#optional-security-options---security-opt
-#                        network="host"
-                    )
-
-
+                exclude=[".venv/*"],  # exclude virtualenv
+                ### couldn't figure out how to get this working
                 # bundling=BundlingOptions(
                 #     image=_lambda.Runtime.PYTHON_3_9.bundling_image,  # use the same Python version number
                 #     command=[  # install requirements.txt

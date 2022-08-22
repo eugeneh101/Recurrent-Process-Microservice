@@ -2,11 +2,11 @@ import os
 import random
 from datetime import datetime
 
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import boto3
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
-load_dotenv()
+# load_dotenv()
 dynamodb_table = boto3.resource("dynamodb").Table(os.environ["DYNAMODB_TABLE"])
 
 def lambda_handler(event, context):
