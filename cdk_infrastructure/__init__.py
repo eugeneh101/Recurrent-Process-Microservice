@@ -2,6 +2,7 @@ from constructs import Construct
 from aws_cdk import (
     BundlingOptions,
     Duration,
+    RemovalPolicy,
     Size,
     Stack,
     aws_dynamodb as dynamodb,
@@ -19,7 +20,10 @@ class OracleStack(Stack):  # later move code into constructs.py
         super().__init__(scope, construct_id, **kwargs)
         # DynamoDB table
         self.dynamodb_table = dynamodb.Table(self, "RandomIntegers",
-            partition_key=dynamodb.Attribute(name="datetime_utc", type=dynamodb.AttributeType.STRING)
+            partition_key=dynamodb.Attribute(name="datetime_utc", type=dynamodb.AttributeType.STRING),
+            # CDK wil not automatically deleted DynamoDB during `cdk destroy`
+            # (as DynamoDB is a stateful resource) unless explicitly specified by the following line
+            removal_policy=RemovalPolicy.DESTROY,
         )
 
         # Lambda
