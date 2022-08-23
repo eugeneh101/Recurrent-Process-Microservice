@@ -6,5 +6,11 @@ from cdk_infrastructure import OracleStack
 
 
 app = cdk.App()
-stack = OracleStack(app, "OracleStack")
+environment = app.node.try_get_context("environment")
+stack = OracleStack(
+    app,
+    "OracleStack",
+    env=cdk.Environment(region=environment["AWS_REGION"]),
+    environment=environment,
+)
 app.synth()
