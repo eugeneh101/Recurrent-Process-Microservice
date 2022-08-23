@@ -36,6 +36,13 @@ class OracleStack(Stack):  # later move code into constructs.py
             removal_policy=RemovalPolicy.DESTROY,
         )
 
+        # Eventbridge scheduled rule: needs Step Function
+        self.eventbridge_minute_scheduled_event = events.Rule(
+            self,
+            "run_every_minute",
+            event_bus=None,  # "default" bus
+            schedule=events.Schedule.rate(Duration.minutes(1)),
+        )
         # Lambdas
         self.get_next_minute_lambda = _lambda.Function(
             self,
@@ -97,14 +104,6 @@ class OracleStack(Stack):  # later move code into constructs.py
         for_loop.iterator(map_state_tasks)
         sfn_definition = get_next_minute.next(sleep_to_next_minute).next(initialize_sleeps).next(for_loop)
         self.state_machine = sfn.StateMachine(self, "RecurrentInvocations", definition=sfn_definition)
-
-        # Eventbridge scheduled rule: needs Step Function
-        self.eventbridge_minute_scheduled_event = events.Rule(
-            self,
-            "run_every_minute",
-            event_bus=None,  # "default" bus
-            schedule=events.Schedule.rate(Duration.minutes(1)),
-        )
 
         # dependencies: lambda layer, environment variable, permissions, Eventbridge rule target
         powertools_layer = _lambda.LayerVersion.from_layer_version_arn(
