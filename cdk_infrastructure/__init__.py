@@ -1,5 +1,6 @@
 import typing
 
+
 from aws_cdk import (
     # BundlingOptions,
     Duration,
@@ -104,12 +105,13 @@ class OracleStack(Stack):  # later move code into constructs.py
             payload_response_only=True,  # don't want Lambda invocation metadata
         )
         sleep_to_next_minute = sfn.Wait(
-            self, "sleep_to_next_minute", time=sfn.WaitTime.timestamp_path("$.next_minute")
+            self,
+            "sleep_to_next_minute",
+            time=sfn.WaitTime.timestamp_path("$.next_minute"),
         )
-        # initialize_sleeps = sfn.Pass(
-        #     self, "initialize_sleeps", result=sfn.Result.from_array([2] * 30)
-        # )  ### hard coded
-        for_loop = sfn.Map(self, id="for loop", items_path="$.invocation_times", max_concurrency=1)
+        for_loop = sfn.Map(
+            self, id="for loop", items_path="$.invocation_times", max_concurrency=1
+        )
 
         sleep_seconds = sfn.Wait(
             self, "sleep_seconds", time=sfn.WaitTime.timestamp_path("$")
@@ -123,11 +125,9 @@ class OracleStack(Stack):  # later move code into constructs.py
         )
         map_state_tasks = sfn.Chain.start(sleep_seconds).next(update_database)
         for_loop.iterator(map_state_tasks)
-        sfn_definition = (
-            get_next_minute_and_invocation_times.next(sleep_to_next_minute)
-            # .next(initialize_sleeps)
-            .next(for_loop)
-        )
+        sfn_definition = get_next_minute_and_invocation_times.next(
+            sleep_to_next_minute
+        ).next(for_loop)
         self.state_machine = sfn.StateMachine(
             self, "RecurrentInvocations", definition=sfn_definition
         )
