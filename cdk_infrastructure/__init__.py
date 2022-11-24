@@ -2,7 +2,6 @@ import typing
 
 
 from aws_cdk import (
-    # BundlingOptions,
     Duration,
     RemovalPolicy,
     SecretValue,
@@ -80,15 +79,6 @@ class OracleStack(Stack):  # later move code into constructs.py
             code=_lambda.Code.from_asset(
                 path="source/update_database_lambda",
                 exclude=[".venv/*"],  # exclude virtualenv
-                ### couldn't figure out how to get this working
-                # bundling=BundlingOptions(
-                #     image=_lambda.Runtime.PYTHON_3_9.bundling_image,  # use the same Python version number
-                #     command=[  # install requirements.txt
-                #         "bash", "-c",
-                #         "ls"
-                #         #"pip install --no-cache -r requirements.txt -t /asset-output && cp -au . /asset-output"
-                #     ],
-                # ),
             ),
             handler="handler.lambda_handler",
             timeout=Duration.seconds(3),
