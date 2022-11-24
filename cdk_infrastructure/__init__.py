@@ -139,7 +139,7 @@ class OracleStack(Stack):  # later move code into constructs.py
         self.update_db_lambda.add_environment(
             key="DYNAMODB_TABLE", value=self.dynamodb_table.table_name
         )
-        self.dynamodb_table.grant_read_write_data(self.update_db_lambda)
+        self.dynamodb_table.grant_write_data(self.update_db_lambda)
         self.secret.grant_read(self.update_db_lambda.role)
         self.eventbridge_minute_scheduled_event.add_target(
             target=events_targets.SfnStateMachine(
