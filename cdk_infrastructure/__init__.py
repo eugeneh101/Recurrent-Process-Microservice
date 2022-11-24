@@ -111,7 +111,8 @@ class OracleStack(Stack):  # later move code into constructs.py
             "update_database",
             lambda_function=self.update_db_lambda,
             payload=sfn.TaskInput.from_text("null"),
-            invocation_type=sfn_tasks.LambdaInvocationType.EVENT,
+            invocation_type=sfn_tasks.LambdaInvocationType.EVENT,  # fire and forget: does not ensure that Lambda is called successfully
+            # invocation_type=sfn_tasks.LambdaInvocationType.REQUEST_RESPONSE,  # waits until Lambda succeeds or fails
         )
         map_state_tasks = sfn.Chain.start(sleep_seconds).next(update_database)
         for_loop.iterator(map_state_tasks)
