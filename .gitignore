@@ -20,3 +20,5 @@ venv.bak/
 # CDK Context & Staging files
 .cdk.staging/
 cdk.out/
+
+__aws_lambda_powertools_layer__/
