@@ -17,9 +17,9 @@ What the architecture entails is Eventbridge that schedules an event every 1 min
 Deploying on AWS Cloudshell is easiest because it already has a sufficiently updated version of AWS CLI, node (at least v16), CDK Toolkit (at least v2) already installed.
 * `git clone THIS_REPO`
 * `cd Recurrent-Process-Microservice`
-* `python3 -m venv .venv`  # create virtualenv
+* `python -m venv .venv`  # create virtualenv
 * `source .venv/bin/activate`  # activate virtualenv
-* `pip install -r requirements.txt`  # install Python CDK
+* `python -m pip install -r requirements.txt`  # install Python CDK
 * `cdk bootstrap`  # 1-time step up for AWS account
 * `cdk deploy`  # deploy this microservice
 

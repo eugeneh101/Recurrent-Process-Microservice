@@ -26,5 +26,3 @@ def lambda_handler(event: None, context: LambdaContext) -> None:
         Item={"datetime_utc": datetime_utc, "random_int": random_int}
     )
     return
-
-    ### figure out how to make a Lambda Layer
