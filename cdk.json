@@ -1,6 +1,6 @@
 {
-  "app": "python3 app.py",
+  "app": "make && python3 app.py",
   "context": {
-    "environment": {"AWS_REGION": "us-west-1"}
+    "environment": {"AWS_REGION": "us-west-1", "CREATE_LAMBDA_LAYER": true}
   }
 }
