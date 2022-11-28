@@ -1,6 +1,6 @@
 import typing
 
-
+import boto3
 from aws_cdk import (
     Duration,
     RemovalPolicy,
@@ -124,14 +124,29 @@ class OracleStack(Stack):  # later move code into constructs.py
         )
 
         # dependencies: lambda layer, environment variable, permissions, Eventbridge rule target
-        powertools_layer = _lambda.LayerVersion.from_layer_version_arn(
-            self,
-            "aws_lambda_powertools",
-            layer_version_arn=(
-                f"arn:aws:lambda:{environment['AWS_REGION']}:"
-                "017000801446:layer:AWSLambdaPowertoolsPython:29"  # might consider getting latest layer
-            ),
-        )
+        if environment["CREATE_LAMBDA_LAYER"]:
+            powertools_layer = _lambda.LayerVersion(
+                self,
+                "aws_lambda_powertools_layer",
+                layer_version_name="aws_lambda_powertools",
+                removal_policy=RemovalPolicy.DESTROY,  # can set to RETAIN if you want to share Lambda Layer
+                code=_lambda.Code.from_asset("__aws_lambda_powertools_layer__"),
+                compatible_architectures=[_lambda.Architecture.X86_64],
+                compatible_runtimes=[_lambda.Runtime.PYTHON_3_9],
+            )
+        else:
+            lambda_layer_versions = (
+                boto3.Session(region_name=environment["AWS_REGION"])
+                .client("lambda").list_layer_versions(LayerName="aws_lambda_powertools")
+            )["LayerVersions"]
+            lambda_layer_arn = max(
+                lambda_layer_versions, key=lambda dict_: dict_["Version"]
+            )["LayerVersionArn"]  # gets the latest layer
+            powertools_layer = _lambda.LayerVersion.from_layer_version_arn(
+                self,
+                "aws_lambda_powertools",
+                layer_version_arn=lambda_layer_arn,
+            )
         self.get_next_minute_and_invocation_times_lambda.add_layers(powertools_layer)
         self.update_db_lambda.add_layers(powertools_layer)
         self.update_db_lambda.add_environment(
