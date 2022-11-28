@@ -11,6 +11,9 @@ What the architecture entails is Eventbridge that schedules an event every 1 min
 * The Map state's timer is not perfect: the Lambda publishing to DynamoDB table may be up to 1 second early, but it's never late. Here's the Step Function diagram: <p align="center"><img src="Step_Function_definition.png" width="300"></p>
 * The Lambda also reads a secret from Secret Manager as proof of concept that you can keep secret values that the Lambda can access during invocation.
 * A Dead-letter queue can be added to make the messaging from Eventbridge to Step Function more fault-tolerant in that if any Step Function invocation fails, then put the message into the DLQ. If there's also an alarm on the DLQ, then an engineer can be informed when a Step Function inovcation failed and determine root cause.
+* This branch (`LambdaLayer`) is different from the `master` branch in that CDK will build the Lambda Layer and upload it rather than attach a pre-made Lambda Layer. There are 2 challenges:
+    * You don't want to upload a new Lambda Layer every time you deploy it, as there is a maximum version that Lambda Layer allows.
+    * The Lambda Layer code is downloaded based on the machine that runs `cdk deploy`. If the machine's Python version does not match the Lambda Python runtime version (which is specified to be Python 3.9), then the Lambda might fail during invocation.
 
 
 # Deploy this Microservice
